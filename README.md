@@ -29,20 +29,20 @@ The client connects to a server available at *serverFQDN*:8443 and sends a strin
 import TCPSSL
 
 guard Process.arguments.count == 3 else {
-  print("Usage:  client serverFQDN string")
-  exit(0)
+    print("Usage:  client serverFQDN string")
+    exit(0)
 }
 
 let serverFQDN = Process.arguments[1]
 let sendData   = Data(Process.arguments[2])
 
 do {
-  let connection = try TCPSSLConnection(host:serverFQDN, port:8443)
-  try connection.open()
-  try connection.send(sendData)
-  let data = try connection.receive(upTo:256, timingOut:.never)
+    let connection = try TCPSSLConnection(host:serverFQDN, port:8443)
+    try connection.open()
+    try connection.send(sendData)
+    let data = try connection.receive(upTo:256, timingOut:.never)
 } catch {
-  print("Client error:  \(error)")
+    print("Client error:  \(error)")
 }
 ```
 _serverFQDN_ is the fully qualified domain name of the server to which the client is connecting.  For example, `server.yourdomain.org`.
@@ -55,8 +55,8 @@ import TCPSSL
 import Foundation
 
 guard Process.arguments.count == 4 else {
-  print("Usage:  server certificatePath keyPath certificateChainPath")
-  exit(0)
+    print("Usage:  server certificatePath keyPath certificateChainPath")
+    exit(0)
 }
 
 let certificatePath      = Process.arguments[1]
@@ -64,30 +64,29 @@ let keyPath              = Process.arguments[2]
 let certificateChainPath = Process.arguments[3]
 
 do {
-  let sslServer = try TCPSSLServer(port:8443,
-                                   certificate:certificatePath,
-                                   privateKey:keyPath,
-                                   certificateChain:certificateChainPath)
+    let sslServer = try TCPSSLServer(port:8443,
+                                     certificate:certificatePath,
+                                     privateKey:keyPath,
+                                     certificateChain:certificateChainPath)
 
-  while true {
-    do {
-      let connection = try sslServer.accept(timingOut:.never)
-      co {
+    while true {
         do {
-          let data = try connection.receive(upTo:256)
-          let reversed = String(String(data).characters.reversed())
-          try connection.send(Data(reversed), timingOut:.never)
-        } catch let dataError {
-          print("Client connection error:  \(dataError)")
-        }
-      }
-    } catch {
-      print("Server accept error:  \(error)")
+            let connection = try sslServer.accept(timingOut:.never)
+            co {
+                do {
+                    let data = try connection.receive(upTo:256)
+                    let reversed = String(String(data).characters.reversed())
+                    try connection.send(Data(reversed), timingOut:.never)
+                } catch let dataError {
+                    print("Client connection error:  \(dataError)")
+                }
+            }
+       } catch {
+            print("Server accept error:  \(error)")
+       }
     }
-  }
-
 } catch let serverError {
-  print("Error:  \(serverError)")
+    print("Error:  \(serverError)")
 }
 ```
 

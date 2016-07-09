@@ -23,7 +23,7 @@ let package = Package(
 In this example we'll build a simple "reverse-echo" client and server that utilizes a secure SSL socket for sending and receiving messages.
 
 ### Client
-The client connects to a server available at `serverFQDN:8443` and sends a string.  It then waits for a response from the server and then exits.
+The client connects to a server available at *serverFQDN*:8443 and sends a string.  It then waits for a response from the server and then exits.
 
 ```swift
 import TCPSSL
@@ -40,11 +40,12 @@ do {
   let connection = try TCPSSLConnection(host:serverFQDN, port:8443)
   try connection.open()
   try connection.send(sendData)
-  let data = try connection.receive(upTo:256, timingOut:-1)
+  let data = try connection.receive(upTo:256, timingOut:.never)
 } catch {
   print("Client error:  \(error)")
 }
 ```
+_serverFQDN_ is the fully qualified domain name of the server to which the client is connecting.  For example, `server.yourdomain.org`.
 
 ### Server
 The server listens for client SSL connections on port 8443.  Once a secure connection is established with the client the server reads a string sent from the server, reverses it, and then replies back to the client.
@@ -70,12 +71,12 @@ do {
 
   while true {
     do {
-      let connection = try sslServer.accept(timingOut:-1)
+      let connection = try sslServer.accept(timingOut:.never)
       co {
         do {
           let data = try connection.receive(upTo:256)
           let reversed = String(String(data).characters.reversed())
-          try connection.send(Data(reversed), timingOut:-1)
+          try connection.send(Data(reversed), timingOut:.never)
         } catch let dataError {
           print("Client connection error:  \(dataError)")
         }
